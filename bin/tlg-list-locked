@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use FindBin qw( $Bin );
+use Cwd;
+use lib Cwd::realpath("$Bin/../lib");
+use Getopt::Long;
+
+use TLG;
+use TLG::Class;
+
+$TLG::Literal::CACHE = 0;
+$TLG::Resource::CACHE = 0;
+$TLG::Predicat::CACHE = 0;
+$TLG::Triplet::CACHE = 0;
+$TLG::Class::CACHE = 0;
+
+GetOptions (
+    "conf=s" => \my($conf_name),
+    "conf-file=s" => \my($conf_file),
+);
+
+TLG->boot(
+    $conf_name ? (name => $conf_name) : (),
+    $conf_file ? (file => $conf_file) : (),
+);
+
+my $lockdb = TLG->current_universe->backend_driver('lock')->client;
+my $resdb = TLG->current_universe->backend_driver('resource')->client;
+my $litdb = TLG->current_universe->backend_driver('literal')->client;
+
+$lockdb->iterinit();
+while (my $lock = $lockdb->iternext() ) {
+    my ($key, $type) = split /-/, $lock;
+    my $record;
+    if ($type eq 'node') {
+        $record = $resdb->get($key);
+    }
+    elsif ($type eq 'resource' || $type eq 'predicat') {
+        $record = $resdb->get($key);
+    }
+    elsif ($type eq 'literal') {
+        $record = $litdb->get($key);
+    }
+    my $w = substr($record->{value} || '', 0, 100);
+    print "$type, $key, $w\n";
+}
+

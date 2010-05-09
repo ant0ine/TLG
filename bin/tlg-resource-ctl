@@ -1,0 +1,59 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+use FindBin qw( $Bin );
+use Cwd;
+use lib Cwd::realpath("$Bin/../lib");
+use Getopt::Long;
+
+use TLG;
+use TLG::Universe;
+
+GetOptions(
+    "conf=s" => \my($conf_name),
+    "conf-file=s" => \my($conf_file),
+    "start" => \my($start),
+    "stop" => \my($stop),
+    "restart" => \my($restart),
+    "status" => \my($status),
+);
+
+TLG->boot(
+    $conf_name ? (name => $conf_name) : (),
+    $conf_file ? (file => $conf_file) : (),
+);
+
+my $u = TLG->current_universe;
+my @drivers = map {
+        $u->instanciate_driver($_)
+    } $u->get_host_resources('localhost'); 
+
+if ($start) {
+    for (@drivers) {
+        eval { $_->start };
+        warn $@ if $@;
+    }
+}
+elsif($stop) {
+    for (@drivers) {
+        eval { $_->stop };
+        warn $@ if $@;
+    }
+}
+elsif($restart) {
+    for (@drivers) {
+        eval { 
+            $_->stop;
+            $_->start;
+        };
+        warn $@ if $@;
+    }
+}
+elsif($status) {
+    for (@drivers) {
+        eval { $_->status };
+        warn $@ if $@;
+    }
+}
+

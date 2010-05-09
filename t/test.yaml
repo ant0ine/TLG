@@ -1,0 +1,95 @@
+universe:
+    id: test
+    name: Test
+    description: "running the unit tests"
+    triplestore:
+        resource:
+            cache: hardcache
+            backend: uri
+        predicat:
+            cache: local
+            backend: uri
+        literal:
+            cache: hardcache
+            backend: text
+        triplet:
+            cache: hardcache
+            backend: triplet
+        node:
+            cache: hardcache
+        lock:
+            tokyo: lock
+    resources:
+        local:
+            driver: TLG::Cache::Local
+            args: 
+        hardcache:
+            runhost: localhost
+            driver: TLG::Cache::TT
+            args: 
+                hostname: localhost
+                filename: hardcache.tch
+                host: 127.0.0.1
+                port: 3005
+                dir: /tmp/tlg_test
+        uri:
+            runhost: localhost
+            driver: TLG::Backend::TT
+            args:
+                hostname: localhost
+                filename: uri.tct
+                host: 127.0.0.1
+                port: 3004
+                dir: /tmp/tlg_test
+        text:
+            runhost: localhost
+            driver: TLG::Backend::TT
+            args:
+                hostname: localhost
+                filename: text.tct
+                host: 127.0.0.1
+                port: 3001
+                dir: /tmp/tlg_test
+        triplet:
+            runhost: localhost
+            driver: TLG::Backend::TT
+            args:
+                hostname: localhost
+                filename: triplet.tct
+                host: 127.0.0.1
+                port: 3002
+                dir: /tmp/tlg_test
+                indices:
+                    on: ITDECIMAL
+                    or: ITLEXICAL
+                    ol: ITLEXICAL
+                    s: ITLEXICAL
+                    p: ITLEXICAL
+                    sp: ITLEXICAL
+                    pon: ITLEXICAL
+                    por: ITLEXICAL
+                    pol: ITLEXICAL
+        lock:
+            runhost: localhost
+            driver: TLG::Backend::TT
+            args:
+                hostname: localhost
+                filename: "'*'"
+                host: 127.0.0.1
+                port: 3003
+                dir: /tmp/tlg_test
+        counter:
+            runhost: localhost
+            driver: TLG::Backend::TT
+            args:
+                hostname: localhost
+                filename: "'*'"
+                host: 127.0.0.1
+                port: 3006
+                dir: /tmp/tlg_test
+Log4perl: |
+    log4perl.rootLogger=DEBUG, Screen
+    log4perl.appender.Screen         = Log::Log4perl::Appender::Screen
+    log4perl.appender.Screen.stderr  = 0
+    log4perl.appender.Screen.layout  = Log::Log4perl::Layout::SimpleLayout
+

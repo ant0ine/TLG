@@ -1,0 +1,32 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+use FindBin qw( $Bin );
+use Cwd;
+use lib Cwd::realpath("$Bin/../lib");
+use Getopt::Long;
+
+use TLG;
+use TLG::Class;
+
+$TLG::Literal::CACHE = 0;
+$TLG::Resource::CACHE = 0;
+$TLG::Predicat::CACHE = 0;
+$TLG::Triplet::CACHE = 0;
+$TLG::Class::CACHE = 0;
+
+GetOptions (
+    "uri=s" => \my($uri),
+    "conf=s" => \my($conf_name),
+    "conf-file=s" => \my($conf_file),
+);
+
+TLG->boot(
+    $conf_name ? (name => $conf_name) : (),
+    $conf_file ? (file => $conf_file) : (),
+);
+
+my $n = TLG::Class->load($uri) or die "not found";
+print $n->as_string;
+
